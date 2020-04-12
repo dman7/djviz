@@ -39,16 +39,14 @@
         // This value is only necessary in the vertex shader.
   			vec4 mvPosition = modelViewMatrix * vec4( translate, 1.0 );
 
-        // Define a scaling factor for the vertex.
-  			vec3 trTime = vec3(translate.x + time,translate.y + time,translate.z + time);
-  			float scale =  sin( trTime.x * 2.1 ) + sin( trTime.y * 3.2 ) + sin( trTime.z * 4.3 );
-
         // vScale is used to define the hue.
         // scale is scaleFactor.
         // position * scale basically scales.
         // += position * scale doesn't change position but scales it.
-        vScale = scale;
-  			scale  = scale * 10.0 + 10.0;
+        vec3 trTime = vec3(translate.x + time,translate.y + time,translate.z + time);
+  			float scale =  sin( trTime.x * 2.1 ) + sin( trTime.y * 3.2 ) + sin( trTime.z * 4.3 );
+        vScale = sin( lowFreq + medFreq + highFreq);
+  			scale  = scale * 2.0 + 5.0;
   			mvPosition.xyz += position * scale;
 
         // uv is (x,y) of the vertex in Cartersian space.
@@ -172,7 +170,7 @@
   			} );
 
   			mesh = new THREE.Mesh( geometry, material );
-  			mesh.scale.set( 500, 500, 500 );
+  			mesh.scale.set( window.cube.x, window.cube.y, window.cube.z );
   			scene.add( mesh );
 
   			renderer.setPixelRatio( window.devicePixelRatio );
@@ -203,12 +201,9 @@
   			material.uniforms[ "time" ].value = time;
 
         // Calculate average of low, medium and high frequencies, normalized to 1
-        var total = 0; for(var i=0; i<340;i++){total += window.frequencyData[i]};
-        var lowFreq = total / 340 / 255;
-        var total = 0; for(var i=340; i<680;i++){total += window.frequencyData[i]};
-        var medFreq = total / 340 / 255;
-        var total = 0; for(var i=680; i<1020;i++){total += window.frequencyData[i]};
-        var highFreq = total / 340 / 255;
+        var lowFreq = window.getFrequencyAverage("low");
+        var medFreq = window.getFrequencyAverage("med");
+        var highFreq = window.getFrequencyAverage("high");
         console.log("low,med,hi", lowFreq, medFreq,highFreq)
 
         material.uniforms[ "lowFreq" ].value  = lowFreq;

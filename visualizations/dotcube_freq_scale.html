@@ -47,8 +47,8 @@
         // scale is scaleFactor.
         // position * scale basically scales.
         // += position * scale doesn't change position but scales it.
-        vScale = scale;
-  			scale  = scale * 10.0 + 10.0;
+        vScale = scale * highFreq * 2.0;
+  			scale  = scale * lowFreq * 0.1 + 3.0;
   			mvPosition.xyz += position * scale;
 
         // uv is (x,y) of the vertex in Cartersian space.
@@ -203,12 +203,9 @@
   			material.uniforms[ "time" ].value = time;
 
         // Calculate average of low, medium and high frequencies, normalized to 1
-        var total = 0; for(var i=0; i<340;i++){total += window.frequencyData[i]};
-        var lowFreq = total / 340 / 255;
-        var total = 0; for(var i=340; i<680;i++){total += window.frequencyData[i]};
-        var medFreq = total / 340 / 255;
-        var total = 0; for(var i=680; i<1020;i++){total += window.frequencyData[i]};
-        var highFreq = total / 340 / 255;
+        var lowFreq = window.getFrequencyAverage("low");
+        var medFreq = window.getFrequencyAverage("med");
+        var highFreq = window.getFrequencyAverage("high");
         console.log("low,med,hi", lowFreq, medFreq,highFreq)
 
         material.uniforms[ "lowFreq" ].value  = lowFreq;

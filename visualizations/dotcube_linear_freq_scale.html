@@ -40,15 +40,15 @@
   			vec4 mvPosition = modelViewMatrix * vec4( translate, 1.0 );
 
         // Define a scaling factor for the vertex.
-  			vec3 trTime = vec3(translate.x + time,translate.y + time,translate.z + time);
-  			float scale =  sin( trTime.x * 2.1 ) + sin( trTime.y * 3.2 ) + sin( trTime.z * 4.3 );
+  			vec3 trTime = vec3(translate.x + lowFreq,translate.y + medFreq,translate.z + highFreq);
+  			float scale =  trTime.x + trTime.y + trTime.z;
 
         // vScale is used to define the hue.
         // scale is scaleFactor.
         // position * scale basically scales.
         // += position * scale doesn't change position but scales it.
-        vScale = scale;
-  			scale  = scale * 10.0 + 10.0;
+        vScale = scale * 1.0;
+  			scale  = scale * 2.0 + 3.0;
   			mvPosition.xyz += position * scale;
 
         // uv is (x,y) of the vertex in Cartersian space.

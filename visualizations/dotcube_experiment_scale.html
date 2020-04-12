@@ -22,9 +22,7 @@
 
       // Custom variables
   		uniform float time;
-      uniform float lowFreq;
-      uniform float medFreq;
-      uniform float highFreq;
+      uniform float freq;
 
       // https://threejs.org/docs/#api/en/core/Object3D.position
   		attribute vec3 position;
@@ -40,15 +38,14 @@
   			vec4 mvPosition = modelViewMatrix * vec4( translate, 1.0 );
 
         // Define a scaling factor for the vertex.
-  			vec3 trTime = vec3(translate.x + time,translate.y + time,translate.z + time);
-  			float scale =  sin( trTime.x * 2.1 ) + sin( trTime.y * 3.2 ) + sin( trTime.z * 4.3 );
-
         // vScale is used to define the hue.
         // scale is scaleFactor.
         // position * scale basically scales.
         // += position * scale doesn't change position but scales it.
-        vScale = scale;
-  			scale  = scale * 10.0 + 10.0;
+  			vec3 trTime = vec3(translate.x + freq,translate.y + freq,translate.z + freq);
+  			float scale =  trTime.x + trTime.y + trTime.z;
+        vScale = scale * 20.0;
+  			scale  = freq * 2.0 + 1.0;
   			mvPosition.xyz += position * scale;
 
         // uv is (x,y) of the vertex in Cartersian space.
@@ -161,9 +158,7 @@
   				uniforms: {
   					"map":      { value: new THREE.TextureLoader().load( window.textureImage ) },
   					"time":     { value: 0.0 },
-            "lowFreq":  { value: 0.0 },
-            "medFreq":  { value: 0.0 },
-            "highFreq": { value: 0.0 }
+            "freq":  { value: 0.0 },
   				},
   				vertexShader: document.getElementById( 'vshader' ).textContent,
   				fragmentShader: document.getElementById( 'fshader' ).textContent,
@@ -171,9 +166,28 @@
   				depthWrite: true
   			} );
 
-  			mesh = new THREE.Mesh( geometry, material );
-  			mesh.scale.set( 500, 500, 500 );
-  			scene.add( mesh );
+        // for (var i=0; i < window.numCubes; i++) {
+        //   mesh = new THREE.Mesh( geometry, material );
+        //   console.log("window.cubes[i].x.max = ", window.cubes[i].x.min)
+    		// 	mesh.scale.set(window.cubes[i].x.max, window.cubes[i].y.max, window.cubes[i].z.max );
+    		// 	scene.add( mesh );
+        //   window.meshes.push(mesh)
+        // }
+
+        mesh = new THREE.Mesh( geometry, material );
+        mesh.scale.set(100, 100, 100);
+        scene.add( mesh );
+        window.meshes.push(mesh)
+
+        mesh = new THREE.Mesh( geometry, material );
+        mesh.scale.set(200, 200, 200);
+        scene.add( mesh );
+        window.meshes.push(mesh)
+
+        mesh = new THREE.Mesh( geometry, material );
+        mesh.scale.set(300, 300, 300);
+        scene.add( mesh );
+        window.meshes.push(mesh)
 
   			renderer.setPixelRatio( window.devicePixelRatio );
   			renderer.setSize( window.innerWidth, window.innerHeight );
@@ -194,31 +208,29 @@
 
   		function animate() {
   			requestAnimationFrame( animate );
-  			render();
+  			renderCube(0);
+        renderCube(1);
+        renderCube(2);
   			stats.update();
   		}
 
-  		function render() {
-  			var time = performance.now() * 0.0005;
+  		function renderCube(num) {
+        var time = performance.now() * 0.0005;
   			material.uniforms[ "time" ].value = time;
 
-        // Calculate average of low, medium and high frequencies, normalized to 1
-        var total = 0; for(var i=0; i<340;i++){total += window.frequencyData[i]};
-        var lowFreq = total / 340 / 255;
-        var total = 0; for(var i=340; i<680;i++){total += window.frequencyData[i]};
-        var medFreq = total / 340 / 255;
-        var total = 0; for(var i=680; i<1020;i++){total += window.frequencyData[i]};
-        var highFreq = total / 340 / 255;
-        console.log("low,med,hi", lowFreq, medFreq,highFreq)
+        var freq;
+        if (num == 0) {
+          freq = window.getFrequencyAverage('low')
+        } else if (num == 1) {
+          freq = window.getFrequencyAverage('med');
+        } else if (num == 2) {
+          freq = window.getFrequencyAverage('high');
+        }
 
-        material.uniforms[ "lowFreq" ].value  = lowFreq;
-        material.uniforms[ "medFreq" ].value  = medFreq;
-        material.uniforms[ "highFreq" ].value = highFreq;
-
-        // Rotate the cube.
+        material.uniforms[ "freq" ].value  = freq;
         if (window.shouldRotate) {
-          mesh.rotation.x = time * 0.2;
-    			mesh.rotation.y = time * 0.4;
+          window.meshes[num].rotation.x = time * 0.2 * (num + 1);
+    			window.meshes[num].rotation.y = time * 0.4 * (num + 1);
         }
 
   			renderer.render( scene, camera );
