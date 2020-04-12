@@ -32,7 +32,7 @@ window.getFrequencyAverage = function(freqRange) {
   }
 }
 
-window.particleCount = 500; // default is 100K
+window.particleCount = 50000; // default is 100K
 window.textureImage = 'https://threejs.org/examples/textures/sprites/circle.png';
 window.shouldRotate = true;
 

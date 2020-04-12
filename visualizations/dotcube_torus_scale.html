@@ -1,3 +1,9 @@
+<!--
+   Best results:
+   * window.particleCount = 50000;
+   * Average frequencies: 0.2740599769319493 0.06275663206459055 0
+   *
+-->
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -44,9 +50,45 @@
         // position * scale basically scales.
         // += position * scale doesn't change position but scales it.
         vec3 trTime = vec3(translate.x + time,translate.y + time,translate.z + time);
-  			float scale =  sin( trTime.x * 2.1 ) + sin( trTime.y * 3.2 ) + sin( trTime.z * 4.3 );
-        vScale = sin( lowFreq + medFreq + highFreq);
-  			scale  = scale * 2.0 + 5.0;
+        vScale = sin( trTime.x ) + sin( trTime.y ) + sin( trTime.z );
+
+        // Outer object
+        float scale = highFreq * 5.0 + 0.5;
+
+        // The beat sphere
+        float circle = translate.x * translate.x + translate.y * translate.y;
+        float sphere = circle + translate.z * translate.z;
+        if (sphere < 0.2) {
+          vScale = sin( trTime.x ) + cos( trTime.y ) + tan( trTime.z );
+          scale  = lowFreq * 20.0+ 0.1;
+        }
+
+        // // The medium sphere.
+        // if (sphere > 0.3 && sphere < 1.0) {
+        //   vScale = cos( trTime.x ) + cos( trTime.y ) + cos( trTime.z );
+        //   scale  = 0.0;
+        // }
+
+        float torusBigR = 1.0;
+        float torusSmallR = 0.7;
+        float torus     = (torusBigR - sqrt(circle)) * (torusBigR - sqrt(circle)) + translate.z * translate.z;
+        if (torus > torusSmallR && torus < torusBigR) {
+          vScale = sin( trTime.x ) + cos( trTime.y ) + tan( trTime.z );
+          scale  = medFreq * 5.0+ 1.0;
+        }
+
+
+        // if (torus > torusBigR) {
+        //   vScale = sin( trTime.x ) + cos( trTime.y ) + tan( trTime.z );
+        //   scale  = lowFreq * 20.0+ 0.1;
+        // }
+
+        //
+
+        //
+
+
+
   			mvPosition.xyz += position * scale;
 
         // uv is (x,y) of the vertex in Cartersian space.
@@ -96,8 +138,8 @@
         vec4 diffuseColor = texture2D( map, vUv ); // vec4(1.0,0.0,0.0,0.5);
 
         // This applies a HSL to the 2D texture of 'map'
-        // vScale in original is in range [0, 360*3 = 1080]
-        // hueValue is between [0, 216] which limits the color variation.
+        // vScale in original is in range [0, 3]
+        // hueValue is between [0, .2] which limits the color variation.
         // gl_FragColor is always the output of a pixel shader. This is
         // where you define the color of each output pixel.
         float hueValue = vScale / 5.0;
@@ -204,7 +246,7 @@
         var lowFreq = window.getFrequencyAverage("low");
         var medFreq = window.getFrequencyAverage("med");
         var highFreq = window.getFrequencyAverage("high");
-        console.log("low,med,hi", lowFreq, medFreq,highFreq)
+        console.log("time: ", time, ",low,med,hi", lowFreq, medFreq,highFreq)
 
         material.uniforms[ "lowFreq" ].value  = lowFreq;
         material.uniforms[ "medFreq" ].value  = medFreq;
