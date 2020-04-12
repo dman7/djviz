@@ -3,28 +3,23 @@
 1. Add
 
 ```
-<script type="text/javascript" src="../build/microphoneStreamer.js"></script>
+<script type="text/javascript" src="./microphoneStreamer.js"></script>
+<script type="text/javascript" src="./dotcubeInitializer.js"></script>
 ```
 
-at end of file. Make sure to adds
-```
-<p>Volume</p>
-<input id="volume" type="range" min="0" max="1" step="0.1" value="0.5"/>
-<button>Start recording from mic</button>
-```
+to HTML file. E.g. file:///opt/djviz/visualizations/dotcube_torus_scale.html
 
-to HTML.
+2. Open the file in Google Chrome browser. E.g file:///opt/djviz/visualizations/dotcube_torus_scale.html
 
-2. You now have window.frequencyData available to that file.
+3. Click "Start Recording from Mic"
 
-3.
+4. Click "Accept"
 
+5. Play any song & you'll see the viz.
 
-Examples:
-file:///opt/three.js/examples/webgl_buffergeometry_instancing_billboards.html
-file:///opt/three.js/examples/webgl_marchingcubes.html
+6. Optional: if you have Soundflower, change your computer's Input source to be SoundFlower. Should be lossless.
 
 
 ## Credits
 3D library three.js: https://threejs.org/  
-Microphone streamer credits to this guy: // https://stackoverflow.com/questions/27846392/access-microphone-from-a-browser-javascript
+Original microphone streamer code credits to this guy: // https://stackoverflow.com/questions/27846392/access-microphone-from-a-browser-javascript
