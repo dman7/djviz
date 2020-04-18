@@ -1,0 +1,450 @@
+<!--
+   Best results:
+   * window.particleCount = 50000;
+   * Average frequencies: 0.2740599769319493 0.06275663206459055 0
+   *
+-->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+  	<title>three.js webgl - instanced particles - billboards - colors</title>
+  	<meta charset="utf-8">
+  	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+  	<link type="text/css" rel="stylesheet" href="../examples/main.css">
+    <script type="text/javascript" src="./microphoneStreamer.js"></script>
+    <script type="text/javascript" src="./dotcubeInitializer.js"></script>
+  </head>
+
+  <body>
+  	<div id="info">
+  		<div id="notSupported" style="display:none">Sorry, your graphics card + browser does not support hardware instancing</div>
+  	</div>
+
+    <!-- https://www.airtightinteractive.com/2013/02/intro-to-pixel-shaders-in-three-js/ -->
+  	<script id="sphere_vshader" type="x-shader/x-vertex">
+  		precision highp float;
+  		uniform mat4 modelViewMatrix;
+  		uniform mat4 projectionMatrix;
+
+      // Custom variables
+  		uniform float time;
+      uniform float lowFreq;
+      uniform float medFreq;
+      uniform float highFreq;
+
+      // https://threejs.org/docs/#api/en/core/Object3D.position
+  		attribute vec3 position;
+  		attribute vec2 uv;
+  		attribute vec3 translate;
+
+  		varying vec2 vUv;
+  		varying float vScale;
+
+  		void main() {
+        // mvPosition is the vertex position in eye/view/camera space.
+        // This value is only necessary in the vertex shader.
+  			vec4 mvPosition = modelViewMatrix * vec4( translate, 1.0 );
+
+        // vScale is used to define the hue.
+        // scale is scaleFactor.
+        // position * scale basically scales.
+        // += position * scale doesn't change position but scales it.
+        vec3 trTime = vec3(translate.x + time,translate.y + time,translate.z + time);
+        vScale = sin( trTime.x ) + sin( trTime.y ) + sin( trTime.z );
+
+        // Outer object
+        float scale = highFreq * 5.0 + 0.5;
+
+        // The beat sphere
+        float circle = translate.x * translate.x + translate.y * translate.y;
+        float sphere = circle + translate.z * translate.z;
+        if (sphere < 1.0) {
+          vScale = sin( trTime.x ) + cos( trTime.y ) + tan( trTime.z );
+          scale  = lowFreq * 20.0+ 0.1;
+        }
+
+
+  			mvPosition.xyz += position * scale;
+
+        // uv is (x,y) of the vertex in Cartersian space.
+        // We set vUv to the location which we use for BA of RGBA
+        // The location dictates the blue & alpha.
+        // See http://ogldev.atspace.co.uk/www/tutorial16/tutorial16.html
+  			vUv = uv;
+
+        // https://aerotwist.com/tutorials/an-introduction-to-shaders-part-1/
+        // a 4D float vector, which is the final position of the vertex on screen
+        // projectionMatrix is available via three.js
+  			gl_Position = projectionMatrix * mvPosition;
+  		}
+  	</script>
+
+
+
+
+    <!-- https://www.airtightinteractive.com/2013/02/intro-to-pixel-shaders-in-three-js/ -->
+  	<script id="invertedTorus_vshader" type="x-shader/x-vertex">
+  		precision highp float;
+  		uniform mat4 modelViewMatrix;
+  		uniform mat4 projectionMatrix;
+
+      // Custom variables
+  		uniform float time;
+      uniform float lowFreq;
+      uniform float medFreq;
+      uniform float highFreq;
+
+      // https://threejs.org/docs/#api/en/core/Object3D.position
+  		attribute vec3 position;
+  		attribute vec2 uv;
+  		attribute vec3 translate;
+
+  		varying vec2 vUv;
+  		varying float vScale;
+
+  		void main() {
+        // mvPosition is the vertex position in eye/view/camera space.
+        // This value is only necessary in the vertex shader.
+  			vec4 mvPosition = modelViewMatrix * vec4( translate, 1.0 );
+
+        // vScale is used to define the hue.
+        // scale is scaleFactor.
+        // position * scale basically scales.
+        // += position * scale doesn't change position but scales it.
+        vec3 trTime = vec3(translate.x + time,translate.y + time,translate.z + time);
+        vScale = sin( trTime.x ) + sin( trTime.y ) + sin( trTime.z );
+
+        // Outer object
+        float scale = highFreq * 5.0 + 0.5;
+
+        // The beat sphere
+        float circle = translate.x * translate.x + translate.y * translate.y;
+        float sphere = circle + translate.z * translate.z;
+        if (sphere < 0.2) {
+          vScale = sin( trTime.x ) + cos( trTime.y ) + tan( trTime.z );
+          scale  = lowFreq * 20.0+ 0.1;
+        }
+
+        // // The medium sphere.
+        // if (sphere > 0.3 && sphere < 1.0) {
+        //   vScale = cos( trTime.x ) + cos( trTime.y ) + cos( trTime.z );
+        //   scale  = 0.0;
+        // }
+
+        float torusBigR = 1.0;
+        float torusSmallR = 0.7;
+        float torus     = (torusBigR - sqrt(circle)) * (torusBigR - sqrt(circle)) + translate.z * translate.z;
+        if (torus > torusSmallR && torus < torusBigR) {
+          vScale = sin( trTime.x ) + cos( trTime.y ) + tan( trTime.z );
+          scale  = medFreq * 5.0+ 1.0;
+        }
+
+
+        // if (torus > torusBigR) {
+        //   vScale = sin( trTime.x ) + cos( trTime.y ) + tan( trTime.z );
+        //   scale  = lowFreq * 20.0+ 0.1;
+        // }
+
+        //
+
+        //
+
+  			mvPosition.xyz += position * scale;
+
+        // uv is (x,y) of the vertex in Cartersian space.
+        // We set vUv to the location which we use for BA of RGBA
+        // The location dictates the blue & alpha.
+        // See http://ogldev.atspace.co.uk/www/tutorial16/tutorial16.html
+  			vUv = uv;
+
+        // https://aerotwist.com/tutorials/an-introduction-to-shaders-part-1/
+        // a 4D float vector, which is the final position of the vertex on screen
+        // projectionMatrix is available via three.js
+  			gl_Position = projectionMatrix * mvPosition;
+  		}
+  	</script>
+
+
+    <!-- https://www.airtightinteractive.com/2013/02/intro-to-pixel-shaders-in-three-js/ -->
+    <script id="torus_vshader" type="x-shader/x-vertex">
+      precision highp float;
+      uniform mat4 modelViewMatrix;
+      uniform mat4 projectionMatrix;
+
+      // Custom variables
+      uniform float time;
+      uniform float lowFreq;
+      uniform float medFreq;
+      uniform float highFreq;
+
+      // https://threejs.org/docs/#api/en/core/Object3D.position
+      attribute vec3 position;
+      attribute vec2 uv;
+      attribute vec3 translate;
+
+      varying vec2 vUv;
+      varying float vScale;
+
+      void main() {
+        vec4 mvPosition = modelViewMatrix * vec4( translate, 1.0 );
+        vec3 trTime = vec3(translate.x + time,translate.y + time,translate.z + time);
+        vScale = sin( trTime.x ) + cos( trTime.y ) + tan( trTime.z );
+
+        float scale = highFreq * 5.0 + 0.5;
+        float circle = translate.x * translate.x + translate.y * translate.y;
+        float torusBigR = 1.0;
+        float torusSmallR = 0.3;
+        float torus     = (torusBigR - sqrt(circle)) * (torusBigR - sqrt(circle)) + translate.z * translate.z;
+        if (torus < torusSmallR || torus >= torusBigR) {
+          vScale = sin( trTime.x ) + cos( trTime.y ) + tan( trTime.z );
+          scale  = medFreq * 5.0+ 1.0;
+        }
+
+        mvPosition.xyz += position * scale;
+        vUv = uv;
+        gl_Position = projectionMatrix * mvPosition;
+      }
+    </script>
+
+
+    <!-- https://www.airtightinteractive.com/2013/02/intro-to-pixel-shaders-in-three-js/ -->
+    <script id="heart_vshader" type="x-shader/x-vertex">
+      precision highp float;
+      uniform mat4 modelViewMatrix;
+      uniform mat4 projectionMatrix;
+
+      // Custom variables
+      uniform float time;
+      uniform float lowFreq;
+      uniform float medFreq;
+      uniform float highFreq;
+
+      // https://threejs.org/docs/#api/en/core/Object3D.position
+      attribute vec3 position;
+      attribute vec2 uv;
+      attribute vec3 translate;
+
+      varying vec2 vUv;
+      varying float vScale;
+
+      void main() {
+        vec4 mvPosition = modelViewMatrix * vec4( translate, 1.0 );
+        vec3 trTime = vec3(translate.x + time,translate.y + time,translate.z + time);
+        vScale = 1.0;
+
+        float scale = 0.0;
+        float term       = translate.x * translate.x + 9.0/4.0 * (translate.y * translate.y) + (translate.z * translate.z) - 1.0;
+        float secondTerm = translate.x * translate.x * (translate.z * translate.z * translate.z);
+        float thirdTerm  = -9.0/80.0 * (translate.y * translate.y) * (translate.z * translate.z * translate.z);
+        float heart = 0.01 * (term * term * term - secondTerm - thirdTerm);
+
+
+        // float term       = 2.0 * translate.x * translate.x + 2.0 * (translate.y * translate.y) + (translate.z * translate.z) - 1.0;
+        // float thirdTerm  = -1.0/80.0 * (translate.x * translate.x) * (translate.z * translate.z * translate.z);
+        // float heart = term*term*term - thirdTerm - translate.y*translate.y*translate.z*translate.z*translate.z;
+
+        if (heart < 0.0) {
+          vScale = tan( trTime.x ) + tan( trTime.y ) + tan( trTime.z );
+          scale  = lowFreq * 20.0+ 1.0;
+        }
+
+        mvPosition.xyz += position * scale;
+        vUv = uv;
+        gl_Position = projectionMatrix * mvPosition;
+      }
+    </script>
+
+    <!-- https://www.airtightinteractive.com/2013/02/intro-to-pixel-shaders-in-three-js/ -->
+    <script id="hyperboloid_vshader" type="x-shader/x-vertex">
+      precision highp float;
+      uniform mat4 modelViewMatrix;
+      uniform mat4 projectionMatrix;
+
+      // Custom variables
+      uniform float time;
+      uniform float lowFreq;
+      uniform float medFreq;
+      uniform float highFreq;
+
+      // https://threejs.org/docs/#api/en/core/Object3D.position
+      attribute vec3 position;
+      attribute vec2 uv;
+      attribute vec3 translate;
+
+      varying vec2 vUv;
+      varying float vScale;
+
+      void main() {
+        vec4 mvPosition = modelViewMatrix * vec4( translate, 1.0 );
+        vec3 trTime = vec3(translate.x + time,translate.y + time,translate.z + time);
+        vScale = 1.0;
+
+        float scale  = 0.1;
+        float scaler = 0.1 * abs(sin(time) );
+        float shape  = translate.x * translate.x / scaler + translate.y * translate.y / scaler - translate.z * translate.z /scaler;
+
+        if (shape < 1.0) {
+          vScale = sin(trTime.x) * tan(trTime.y);
+          scale  = lowFreq * 10.0+ 1.0;
+        }
+
+        mvPosition.xyz += position * scale;
+        vUv = uv;
+        gl_Position = projectionMatrix * mvPosition;
+      }
+    </script>
+
+
+    <!-- https://www.airtightinteractive.com/2013/02/intro-to-pixel-shaders-in-three-js/ -->
+    <script id="abstract_vshader" type="x-shader/x-vertex">
+      precision highp float;
+      uniform mat4 modelViewMatrix;
+      uniform mat4 projectionMatrix;
+
+      // Custom variables
+      uniform float time;
+      uniform float lowFreq;
+      uniform float medFreq;
+      uniform float highFreq;
+
+      // https://threejs.org/docs/#api/en/core/Object3D.position
+      attribute vec3 position;
+      attribute vec2 uv;
+      attribute vec3 translate;
+
+      varying vec2 vUv;
+      varying float vScale;
+
+      void main() {
+        vec4 mvPosition = modelViewMatrix * vec4( translate, 1.0 );
+        vec3 trTime = vec3(translate.x + time,translate.y + time,translate.z + time);
+        vScale = sin( trTime.x ) + sin( trTime.y ) + sin( trTime.z );
+
+        // Outer object
+        float scale = 0.0;
+
+        if (translate.x * translate.x < translate.z * tan(translate.y) ) {
+          vScale = tan( trTime.x ) + tan( trTime.x ) * tan( trTime.z ) + tan( trTime.y ) * tan( trTime.z ) ;
+          scale  = medFreq * 10.0 + 1.0;
+        }
+
+        mvPosition.xyz += position * scale;
+        vUv = uv;
+        gl_Position = projectionMatrix * mvPosition;
+      }
+    </script>
+
+
+
+    <script id="fshader" type="x-shader/x-fragment">
+  		precision highp float;
+  		uniform sampler2D map;
+  		varying vec2 vUv;
+  		varying float vScale;
+
+  		// HSL to RGB Convertion helpers
+  		vec3 HUEtoRGB(float H){
+  			H = mod(H,1.0);
+  			float R = abs(H * 6.0 - 3.0) - 1.0;
+  			float G = 2.0 - abs(H * 6.0 - 2.0);
+  			float B = 2.0 - abs(H * 6.0 - 4.0);
+  			return clamp(vec3(R,G,B),0.0,1.0);
+  		}
+
+  		vec3 HSLtoRGB(vec3 HSL){
+  			vec3 RGB = HUEtoRGB(HSL.x);
+  			float C = (1.0 - abs(2.0 * HSL.z - 1.0)) * HSL.y;
+  			return (RGB - 0.5) * C + HSL.z;
+  		}
+
+  		void main() {
+        // https://www.airtightinteractive.com/2013/02/intro-to-pixel-shaders-in-three-js/
+        // Line 8 gets the color of this pixel from the passed in texture (map)
+        // and the coord of this pixel (vUv). vec4 colors are in RGBA format with
+        // values from 0 to 1, so (1.0,0.0,0.0,0.5) would be red at 50% opacity.
+        //
+        // Last element, w, is scaling factor. See https://stackoverflow.com/questions/2422750/in-opengl-vertex-shaders-what-is-w-and-why-do-i-divide-by-it
+        // texture2D is:
+        // * map - 2D circle,
+        // * vUv - blue & alpha channel. vUv is defined as uv
+        vec4 diffuseColor = texture2D( map, vUv ); // vec4(1.0,0.0,0.0,0.5);
+
+        // This applies a HSL to the 2D texture of 'map'
+        // vScale in original is in range [0, 3]
+        // hueValue is between [0, .2] which limits the color variation.
+        // gl_FragColor is always the output of a pixel shader. This is
+        // where you define the color of each output pixel.
+        float hueValue = vScale / 5.0;
+  			gl_FragColor   = vec4( diffuseColor.xyz * HSLtoRGB(vec3(hueValue, 1.0, 0.5)), diffuseColor.w );
+
+  			if ( diffuseColor.w < 0.5 ) discard;
+  		}
+  	</script>
+
+
+
+  	<script type="module">
+  		import * as THREE from 'https://threejs.org/build/three.module.js';
+  		import Stats from 'https://threejs.org/examples/jsm/libs/stats.module.js';
+
+  		var stats;
+  		var geometry, renderer;
+
+      // https://discoverthreejs.com/book/first-steps/first-scene/#positioning-an-object-in-3d-space
+  		function init() {
+        window.initCamera(THREE);
+        window.initUniverse(THREE);
+
+        // Seed with invertedTorus
+        window.initMaterial(THREE, window.currentMaterialID);
+
+  			stats = new Stats();
+  			window.container.appendChild( stats.dom );
+
+  			window.addEventListener( 'resize', onWindowResize, false );
+  			return true;
+  		}
+
+  		function onWindowResize() {
+  			window.camera.aspect = window.innerWidth / window.innerHeight;
+  			window.camera.updateProjectionMatrix();
+  			window.renderer.setSize( window.innerWidth, window.innerHeight );
+  		}
+
+  		function animate() {
+        // https://developer.mozilla.org/en-US/docs/Web/API/window/requestAnimationFrame
+        // This triggers an infinite loop to call animate()
+  			requestAnimationFrame( animate );
+  			render();
+  			stats.update();
+  		}
+
+  		function render() {
+  			var time = performance.now() * 0.0005;
+  			window.materials[window.currentMaterialID].uniforms[ "time" ].value = time;
+
+        // Calculate average of low, medium and high frequencies, normalized to 1
+        var lowFreq = window.getFrequencyAverage("low");
+        var medFreq = window.getFrequencyAverage("med");
+        var highFreq = window.getFrequencyAverage("high");
+        // console.log("time: ", time, ",low,med,hi", lowFreq, medFreq,highFreq)
+
+        window.materials[window.currentMaterialID].uniforms[ "lowFreq" ].value  = lowFreq;
+        window.materials[window.currentMaterialID].uniforms[ "medFreq" ].value  = medFreq;
+        window.materials[window.currentMaterialID].uniforms[ "highFreq" ].value = highFreq;
+
+        camera.translateZ(window.zSpeed);
+        window.meshes[window.currentMaterialID].rotation.x = time * 0.2;
+        window.meshes[window.currentMaterialID].rotation.y = time * 0.4;
+
+        window.updateCurrentMesh(THREE)
+
+  			window.renderer.render( window.scene, window.camera );
+  		}
+
+  		if ( init() ) {
+  			animate();
+  		}
+  	</script>
+  </body>
+</html>

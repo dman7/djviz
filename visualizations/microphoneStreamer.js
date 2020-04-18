@@ -5,12 +5,30 @@ window.gainNode = null;
 window.microphoneStream = null;
 
 
+window.getFrequencyAverage = function(freqRange) {
+  if (freqRange == 'high') {
+    var total = 0; for(var i=680; i<1020;i++){total += window.frequencyData[i]};
+    return (total / 340) / 255;
+  } else if (freqRange == 'med') {
+    var total = 0; for(var i=340; i<680;i++){total += window.frequencyData[i]};
+    return (total / 340) / 255;
+  } else if (freqRange == 'low') {
+    var total = 0; for(var i=0; i<340;i++){total += window.frequencyData[i]};
+    return (total / 340) / 255;
+  }
+}
+
+window.frequencyData = [];
+for (var i=0; i < 1024; i++) {
+  window.frequencyData.push(Math.random());
+}
+
 document.addEventListener("DOMContentLoaded", function(){
   var newDiv = document.createElement("div");
   newDiv.style.textAlign = "center";
 
+  // NOTE: Only add this if you're comfortable with feedback gain.
   newDiv.appendChild(document.createTextNode("Volume"));
-
   var volumeControl = document.createElement("input");
   volumeControl.setAttribute("id", "volume")
   volumeControl.setAttribute("type", "range")
@@ -18,7 +36,6 @@ document.addEventListener("DOMContentLoaded", function(){
   volumeControl.setAttribute("max", "1")
   volumeControl.setAttribute("step", "0.1")
   volumeControl.setAttribute("value", "0.0")
-
   newDiv.appendChild(volumeControl)
 
   var recordBtn = document.createElement("button");
