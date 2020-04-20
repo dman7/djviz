@@ -1,7 +1,7 @@
 window.heightFromAbove = 1000;
 window.zTranslate = 2000;
 window.zSpeed = -0.0;
-window.density  = 10.0
+window.density  = 10.0;
 window.cube     = {
   x: 30 * window.density,
   y: 30 * window.density,
@@ -11,7 +11,11 @@ window.particleCount = 50 * (window.density ** 3); // default is 100K
 window.textureImage = 'https://threejs.org/examples/textures/sprites/circle.png';
 window.shouldRotate = true;
 
-window.shapes            = ["hyperboloid", "heart", "abstract",  "torus", "sphere", "invertedTorus"];
+window.shapes = [
+  "invertedTorus",
+  "hyperboloid",
+  "heart",
+];
 window.currentMaterialID = window.shapes[0];
 window.nextMaterialID    = window.shapes[1];
 

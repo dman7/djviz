@@ -11,8 +11,9 @@
   	<meta charset="utf-8">
   	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
   	<link type="text/css" rel="stylesheet" href="../examples/main.css">
-    <script type="text/javascript" src="./microphoneStreamer.js"></script>
     <script type="text/javascript" src="./dotcubeInitializer.js"></script>
+    <script type="text/javascript" src="./microphoneStreamer.js"></script>
+
   </head>
 
   <body>
@@ -392,6 +393,7 @@
 
       // https://discoverthreejs.com/book/first-steps/first-scene/#positioning-an-object-in-3d-space
   		function init() {
+        window.THREE = THREE;
         window.initCamera(THREE);
         window.initUniverse(THREE);
 
@@ -434,8 +436,11 @@
         window.materials[window.currentMaterialID].uniforms[ "highFreq" ].value = highFreq;
 
         camera.translateZ(window.zSpeed);
-        window.meshes[window.currentMaterialID].rotation.x = time * 0.2;
-        window.meshes[window.currentMaterialID].rotation.y = time * 0.4;
+
+        if (window.shouldRotate) {
+          window.meshes[window.currentMaterialID].rotation.x = time * 0.2;
+          window.meshes[window.currentMaterialID].rotation.y = time * 0.4;
+        }
 
         window.updateCurrentMesh(THREE)
 
