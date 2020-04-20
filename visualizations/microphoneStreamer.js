@@ -172,7 +172,8 @@ document.addEventListener("DOMContentLoaded", function(){
     window.startRecording();
   });
 
-  document.querySelector('button').addEventListener('touchend', function() {
+  document.querySelector('button').addEventListener('touchstart', function() {
+    window.alert("Clicked!")
     window.startRecording();
   });
 
