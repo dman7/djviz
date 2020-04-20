@@ -169,11 +169,12 @@ document.addEventListener("DOMContentLoaded", function(){
   });
 
   document.querySelector('button').addEventListener('click', function() {
+    window.alert("Clicked!")
     window.startRecording();
   });
 
   document.querySelector('button').addEventListener('touchstart', function() {
-    window.alert("Clicked!")
+    window.alert("Touhed!")
     window.startRecording();
   });
 
