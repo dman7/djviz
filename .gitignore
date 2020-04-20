@@ -8,3 +8,14 @@ npm-debug.log
 .jshintrc
 .vs/
 test/unit/three.*.unit.js
+
+./build
+./docs
+./editor
+./examples
+./files
+./src
+./test
+./utils
+package.json
+.travis.yml
