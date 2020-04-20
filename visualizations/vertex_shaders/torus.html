@@ -1,0 +1,53 @@
+
+    <!-- https://www.airtightinteractive.com/2013/02/intro-to-pixel-shaders-in-three-js/ -->
+    <script id="torus_vshader" type="x-shader/x-vertex">
+      precision highp float;
+      uniform mat4 modelViewMatrix;
+      uniform mat4 projectionMatrix;
+
+      // Custom variables
+      uniform float time;
+      uniform float lowFreq;
+      uniform float medFreq;
+      uniform float highFreq;
+
+      uniform float freqSlice1;
+      uniform float freqSlice2;
+      uniform float freqSlice3;
+      uniform float freqSlice4;
+      uniform float freqSlice5;
+      uniform float freqSlice6;
+      uniform float freqSlice7;
+      uniform float freqSlice8;
+      uniform float freqSlice9;
+      uniform float freqSlice10;
+
+
+      // https://threejs.org/docs/#api/en/core/Object3D.position
+      attribute vec3 position;
+      attribute vec2 uv;
+      attribute vec3 translate;
+
+      varying vec2 vUv;
+      varying float vScale;
+
+      void main() {
+        vec4 mvPosition = modelViewMatrix * vec4( translate, 1.0 );
+        vec3 trTime = vec3(translate.x + time,translate.y + time,translate.z + time);
+        vScale = sin( trTime.x ) + cos( trTime.y ) + tan( trTime.z );
+
+        float scale = highFreq * 5.0 + 0.5;
+        float circle = translate.x * translate.x + translate.y * translate.y;
+        float torusBigR = 1.0;
+        float torusSmallR = 0.3;
+        float torus     = (torusBigR - sqrt(circle)) * (torusBigR - sqrt(circle)) + translate.z * translate.z;
+        if (torus < torusSmallR || torus >= torusBigR) {
+          vScale = sin( trTime.x ) + cos( trTime.y ) + tan( trTime.z );
+          scale  = medFreq * 5.0+ 1.0;
+        }
+
+        mvPosition.xyz += position * scale;
+        vUv = uv;
+        gl_Position = projectionMatrix * mvPosition;
+      }
+    </script>

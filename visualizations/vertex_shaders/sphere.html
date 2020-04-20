@@ -1,0 +1,69 @@
+<!-- https://www.airtightinteractive.com/2013/02/intro-to-pixel-shaders-in-three-js/ -->
+<script id="sphere_vshader" type="x-shader/x-vertex">
+  precision highp float;
+  uniform mat4 modelViewMatrix;
+  uniform mat4 projectionMatrix;
+
+  // Custom variables
+  uniform float time;
+  uniform float lowFreq;
+  uniform float medFreq;
+  uniform float highFreq;
+
+  uniform float freqSlice1;
+  uniform float freqSlice2;
+  uniform float freqSlice3;
+  uniform float freqSlice4;
+  uniform float freqSlice5;
+  uniform float freqSlice6;
+  uniform float freqSlice7;
+  uniform float freqSlice8;
+  uniform float freqSlice9;
+  uniform float freqSlice0;
+
+  // https://threejs.org/docs/#api/en/core/Object3D.position
+  attribute vec3 position;
+  attribute vec2 uv;
+  attribute vec3 translate;
+
+  varying vec2 vUv;
+  varying float vScale;
+
+  void main() {
+    // mvPosition is the vertex position in eye/view/camera space.
+    // This value is only necessary in the vertex shader.
+    vec4 mvPosition = modelViewMatrix * vec4( translate, 1.0 );
+
+    // vScale is used to define the hue.
+    // scale is scaleFactor.
+    // position * scale basically scales.
+    // += position * scale doesn't change position but scales it.
+    vec3 trTime = vec3(translate.x + time,translate.y + time,translate.z + time);
+    vScale = sin( trTime.x ) + sin( trTime.y ) + sin( trTime.z );
+
+    // Outer object
+    float scale = highFreq * 5.0 + 0.5;
+
+    // The beat sphere
+    float circle = translate.x * translate.x + translate.y * translate.y;
+    float sphere = circle + translate.z * translate.z;
+    if (sphere < 1.0) {
+      vScale = sin( trTime.x ) + cos( trTime.y ) + tan( trTime.z );
+      scale  = lowFreq * 20.0+ 0.1;
+    }
+
+
+    mvPosition.xyz += position * scale;
+
+    // uv is (x,y) of the vertex in Cartersian space.
+    // We set vUv to the location which we use for BA of RGBA
+    // The location dictates the blue & alpha.
+    // See http://ogldev.atspace.co.uk/www/tutorial16/tutorial16.html
+    vUv = uv;
+
+    // https://aerotwist.com/tutorials/an-introduction-to-shaders-part-1/
+    // a 4D float vector, which is the final position of the vertex on screen
+    // projectionMatrix is available via three.js
+    gl_Position = projectionMatrix * mvPosition;
+  }
+</script>

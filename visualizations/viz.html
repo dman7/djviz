@@ -11,7 +11,7 @@
   	<meta charset="utf-8">
   	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
   	<link type="text/css" rel="stylesheet" href="./main.css">
-    <script type="text/javascript" src="./dotcubeInitializer.js"></script>
+    <script type="text/javascript" src="./init.js"></script>
     <script type="text/javascript" src="./microphoneStreamer.js"></script>
   </head>
 
@@ -21,29 +21,41 @@
   	</div>
 
     <!-- https://www.airtightinteractive.com/2013/02/intro-to-pixel-shaders-in-three-js/ -->
-  	<script id="sphere_vshader" type="x-shader/x-vertex">
-  		precision highp float;
-  		uniform mat4 modelViewMatrix;
-  		uniform mat4 projectionMatrix;
+    <script id="sphere_vshader" type="x-shader/x-vertex">
+      precision highp float;
+      uniform mat4 modelViewMatrix;
+      uniform mat4 projectionMatrix;
 
       // Custom variables
-  		uniform float time;
+      uniform float time;
       uniform float lowFreq;
       uniform float medFreq;
       uniform float highFreq;
 
+      uniform float freqSlice0;
+      uniform float freqSlice1;
+      uniform float freqSlice2;
+      uniform float freqSlice3;
+      uniform float freqSlice4;
+      uniform float freqSlice5;
+      uniform float freqSlice6;
+      uniform float freqSlice7;
+      uniform float freqSlice8;
+      uniform float freqSlice9;
+
+
       // https://threejs.org/docs/#api/en/core/Object3D.position
-  		attribute vec3 position;
-  		attribute vec2 uv;
-  		attribute vec3 translate;
+      attribute vec3 position;
+      attribute vec2 uv;
+      attribute vec3 translate;
 
-  		varying vec2 vUv;
-  		varying float vScale;
+      varying vec2 vUv;
+      varying float vScale;
 
-  		void main() {
+      void main() {
         // mvPosition is the vertex position in eye/view/camera space.
         // This value is only necessary in the vertex shader.
-  			vec4 mvPosition = modelViewMatrix * vec4( translate, 1.0 );
+        vec4 mvPosition = modelViewMatrix * vec4( translate, 1.0 );
 
         // vScale is used to define the hue.
         // scale is scaleFactor.
@@ -64,22 +76,20 @@
         }
 
 
-  			mvPosition.xyz += position * scale;
+        mvPosition.xyz += position * scale;
 
         // uv is (x,y) of the vertex in Cartersian space.
         // We set vUv to the location which we use for BA of RGBA
         // The location dictates the blue & alpha.
         // See http://ogldev.atspace.co.uk/www/tutorial16/tutorial16.html
-  			vUv = uv;
+        vUv = uv;
 
         // https://aerotwist.com/tutorials/an-introduction-to-shaders-part-1/
         // a 4D float vector, which is the final position of the vertex on screen
         // projectionMatrix is available via three.js
-  			gl_Position = projectionMatrix * mvPosition;
-  		}
-  	</script>
-
-
+        gl_Position = projectionMatrix * mvPosition;
+      }
+    </script>
 
 
     <!-- https://www.airtightinteractive.com/2013/02/intro-to-pixel-shaders-in-three-js/ -->
@@ -93,6 +103,19 @@
       uniform float lowFreq;
       uniform float medFreq;
       uniform float highFreq;
+
+
+      uniform float freqSlice0;
+      uniform float freqSlice1;
+      uniform float freqSlice2;
+      uniform float freqSlice3;
+      uniform float freqSlice4;
+      uniform float freqSlice5;
+      uniform float freqSlice6;
+      uniform float freqSlice7;
+      uniform float freqSlice8;
+      uniform float freqSlice9;
+
 
       // https://threejs.org/docs/#api/en/core/Object3D.position
   		attribute vec3 position;
@@ -120,16 +143,30 @@
         // The beat sphere
         float circle = translate.x * translate.x + translate.y * translate.y;
         float sphere = circle + translate.z * translate.z;
-        if (sphere < 0.2) {
+        // if (sphere < 0.2) {
+        //   vScale = sin( trTime.x ) + cos( trTime.y ) + tan( trTime.z );
+        //   scale  = lowFreq * 20.0+ 0.1;
+        // }
+
+        if (sphere < 0.05) {
           vScale = sin( trTime.x ) + cos( trTime.y ) + tan( trTime.z );
-          scale  = lowFreq * 20.0+ 0.1;
+          scale  = freqSlice0 * 5.0+ 0.1;
+        }
+        if (sphere > 0.05 && sphere < 0.1) {
+          vScale = cos( trTime.x ) + cos( trTime.y ) + cos( trTime.z );
+          scale  = freqSlice1 * 5.0+ 0.1;;
+        }
+        if (sphere > 0.1 && sphere < 0.15) {
+          vScale = cos( trTime.x ) + cos( trTime.y ) + cos( trTime.z );
+          scale  = freqSlice2 * 5.0+ 0.1;;
+        }
+        if (sphere > 0.15 && sphere < 0.2) {
+          vScale = cos( trTime.x ) + cos( trTime.y ) + cos( trTime.z );
+          scale  = freqSlice3 * 5.0+ 0.1;
         }
 
-        // // The medium sphere.
-        // if (sphere > 0.3 && sphere < 1.0) {
-        //   vScale = cos( trTime.x ) + cos( trTime.y ) + cos( trTime.z );
-        //   scale  = 0.0;
-        // }
+
+
 
         float torusBigR = 1.0;
         float torusSmallR = 0.7;
@@ -165,47 +202,6 @@
   	</script>
 
 
-    <!-- https://www.airtightinteractive.com/2013/02/intro-to-pixel-shaders-in-three-js/ -->
-    <script id="torus_vshader" type="x-shader/x-vertex">
-      precision highp float;
-      uniform mat4 modelViewMatrix;
-      uniform mat4 projectionMatrix;
-
-      // Custom variables
-      uniform float time;
-      uniform float lowFreq;
-      uniform float medFreq;
-      uniform float highFreq;
-
-      // https://threejs.org/docs/#api/en/core/Object3D.position
-      attribute vec3 position;
-      attribute vec2 uv;
-      attribute vec3 translate;
-
-      varying vec2 vUv;
-      varying float vScale;
-
-      void main() {
-        vec4 mvPosition = modelViewMatrix * vec4( translate, 1.0 );
-        vec3 trTime = vec3(translate.x + time,translate.y + time,translate.z + time);
-        vScale = sin( trTime.x ) + cos( trTime.y ) + tan( trTime.z );
-
-        float scale = highFreq * 5.0 + 0.5;
-        float circle = translate.x * translate.x + translate.y * translate.y;
-        float torusBigR = 1.0;
-        float torusSmallR = 0.3;
-        float torus     = (torusBigR - sqrt(circle)) * (torusBigR - sqrt(circle)) + translate.z * translate.z;
-        if (torus < torusSmallR || torus >= torusBigR) {
-          vScale = sin( trTime.x ) + cos( trTime.y ) + tan( trTime.z );
-          scale  = medFreq * 5.0+ 1.0;
-        }
-
-        mvPosition.xyz += position * scale;
-        vUv = uv;
-        gl_Position = projectionMatrix * mvPosition;
-      }
-    </script>
-
 
     <!-- https://www.airtightinteractive.com/2013/02/intro-to-pixel-shaders-in-three-js/ -->
     <script id="heart_vshader" type="x-shader/x-vertex">
@@ -218,6 +214,18 @@
       uniform float lowFreq;
       uniform float medFreq;
       uniform float highFreq;
+
+      uniform float freqSlice0;
+      uniform float freqSlice1;
+      uniform float freqSlice2;
+      uniform float freqSlice3;
+      uniform float freqSlice4;
+      uniform float freqSlice5;
+      uniform float freqSlice6;
+      uniform float freqSlice7;
+      uniform float freqSlice8;
+      uniform float freqSlice9;
+
 
       // https://threejs.org/docs/#api/en/core/Object3D.position
       attribute vec3 position;
@@ -266,6 +274,18 @@
       uniform float medFreq;
       uniform float highFreq;
 
+      uniform float freqSlice0;
+      uniform float freqSlice1;
+      uniform float freqSlice2;
+      uniform float freqSlice3;
+      uniform float freqSlice4;
+      uniform float freqSlice5;
+      uniform float freqSlice6;
+      uniform float freqSlice7;
+      uniform float freqSlice8;
+      uniform float freqSlice9;
+
+
       // https://threejs.org/docs/#api/en/core/Object3D.position
       attribute vec3 position;
       attribute vec2 uv;
@@ -293,47 +313,6 @@
         gl_Position = projectionMatrix * mvPosition;
       }
     </script>
-
-
-    <!-- https://www.airtightinteractive.com/2013/02/intro-to-pixel-shaders-in-three-js/ -->
-    <script id="abstract_vshader" type="x-shader/x-vertex">
-      precision highp float;
-      uniform mat4 modelViewMatrix;
-      uniform mat4 projectionMatrix;
-
-      // Custom variables
-      uniform float time;
-      uniform float lowFreq;
-      uniform float medFreq;
-      uniform float highFreq;
-
-      // https://threejs.org/docs/#api/en/core/Object3D.position
-      attribute vec3 position;
-      attribute vec2 uv;
-      attribute vec3 translate;
-
-      varying vec2 vUv;
-      varying float vScale;
-
-      void main() {
-        vec4 mvPosition = modelViewMatrix * vec4( translate, 1.0 );
-        vec3 trTime = vec3(translate.x + time,translate.y + time,translate.z + time);
-        vScale = sin( trTime.x ) + sin( trTime.y ) + sin( trTime.z );
-
-        // Outer object
-        float scale = 0.0;
-
-        if (translate.x * translate.x < translate.z * tan(translate.y) ) {
-          vScale = tan( trTime.x ) + tan( trTime.x ) * tan( trTime.z ) + tan( trTime.y ) * tan( trTime.z ) ;
-          scale  = medFreq * 10.0 + 1.0;
-        }
-
-        mvPosition.xyz += position * scale;
-        vUv = uv;
-        gl_Position = projectionMatrix * mvPosition;
-      }
-    </script>
-
 
 
     <script id="fshader" type="x-shader/x-fragment">
@@ -421,18 +400,23 @@
   		}
 
   		function render() {
+        // console.log("frequencyData = ", Math.max(...frequencyData))
+
   			var time = performance.now() * 0.0005;
   			window.materials[window.currentMaterialID].uniforms[ "time" ].value = time;
 
         // Calculate average of low, medium and high frequencies, normalized to 1
-        var lowFreq = window.getFrequencyAverage("low");
-        var medFreq = window.getFrequencyAverage("med");
-        var highFreq = window.getFrequencyAverage("high");
-        // console.log("time: ", time, ",low,med,hi", lowFreq, medFreq,highFreq)
+        window.materials[window.currentMaterialID].uniforms[ "lowFreq" ].value  = window.getFrequencyAverage("range:340:slice:0");
+        window.materials[window.currentMaterialID].uniforms[ "medFreq" ].value  = window.getFrequencyAverage("range:340:slice:1");
+        window.materials[window.currentMaterialID].uniforms[ "highFreq" ].value = window.getFrequencyAverage("range:340:slice:2");
 
-        window.materials[window.currentMaterialID].uniforms[ "lowFreq" ].value  = lowFreq;
-        window.materials[window.currentMaterialID].uniforms[ "medFreq" ].value  = medFreq;
-        window.materials[window.currentMaterialID].uniforms[ "highFreq" ].value = highFreq;
+
+        // Break up into finer frequencies
+        for (var slice=0; slice < 9; slice++) {
+          var freqSlice = "freqSlice" + slice
+          var freqValue = window.getFrequencyAverage("range:100:slice:" + slice);
+          window.materials[window.currentMaterialID].uniforms[ freqSlice ].value = freqValue;
+        }
 
         camera.translateZ(window.zSpeed);
 

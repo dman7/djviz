@@ -4,15 +4,14 @@ window.audioContext = null;
 window.gainNode = null;
 window.microphoneStream = null;
 
-
 window.startRecording = function() {
   window.audioContext = new AudioContext();
   console.log("Audio starting...");
   var BUFF_SIZE = 16384;
 
-  var script_processor_node     = null,
-    script_processor_fft_node = null,
-    analyserNode              = null;
+  var audioNode  = null,
+    audioFFTNode = null,
+    analyserNode = null;
 
   if (!navigator.getUserMedia)
     navigator.getUserMedia = navigator.mediaDevices.getUserMedia || navigator.getUserMedia || navigator.webkitGetUserMedia ||
@@ -34,30 +33,31 @@ window.startRecording = function() {
   }
 
   function startMic(stream){
+    // Set volume to 0.
     window.gainNode = window.audioContext.createGain();
     window.gainNode.connect( window.audioContext.destination );
     window.gainNode.gain.setValueAtTime(0, window.audioContext.currentTime);
 
     window.microphoneStream = window.audioContext.createMediaStreamSource(stream);
     window.microphoneStream.connect(window.gainNode);
-    script_processor_node = window.audioContext.createScriptProcessor(BUFF_SIZE, 1, 1);
-    script_processor_node.onaudioprocess = process_microphone_buffer;
-    window.microphoneStream.connect(script_processor_node);
 
+    // Create node and pass stream to it.
+    audioNode = window.audioContext.createScriptProcessor(BUFF_SIZE, 1, 1);
+    audioNode.onaudioprocess = process_microphone_buffer;
+    window.microphoneStream.connect(audioNode);
 
-    // --- setup FFT
-    script_processor_fft_node = window.audioContext.createScriptProcessor(2048, 1, 1);
-    script_processor_fft_node.connect(window.gainNode);
-
+    // analyserNode
     analyserNode = window.audioContext.createAnalyser();
     analyserNode.smoothingTimeConstant = 0;
     analyserNode.fftSize = 2048;
-
     window.microphoneStream.connect(analyserNode);
 
-    analyserNode.connect(script_processor_fft_node);
+    // Setup FFT
+    audioFFTNode = window.audioContext.createScriptProcessor(2048, 1, 1);
+    audioFFTNode.connect(window.gainNode);
+    analyserNode.connect(audioFFTNode);
 
-    script_processor_fft_node.onaudioprocess = function() {
+    audioFFTNode.onaudioprocess = function() {
       // get the average for the first channel
       var array = new Uint8Array(analyserNode.frequencyBinCount);
       window.frequencyData = array;
@@ -72,15 +72,19 @@ window.startRecording = function() {
   }
 }
 
+// range:340:slice:0
 window.getFrequencyAverage = function(freqRange) {
+  var range = freqRange.split(":")[1];
+  var slice = freqRange.split(":")[3];
+
+  var total = 0; for(var i = range*slice; i < 1024; i++){ total += window.frequencyData[i] };
+  return (total / range) / 255;
+
   if (freqRange == 'high') {
     var total = 0; for(var i=680; i<1020;i++){total += window.frequencyData[i]};
     return (total / 340) / 255;
   } else if (freqRange == 'med') {
     var total = 0; for(var i=340; i<680;i++){total += window.frequencyData[i]};
-    return (total / 340) / 255;
-  } else if (freqRange == 'low') {
-    var total = 0; for(var i=0; i<340;i++){total += window.frequencyData[i]};
     return (total / 340) / 255;
   }
 }
