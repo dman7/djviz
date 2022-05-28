@@ -33,10 +33,12 @@ window.startRecording = function() {
   }
 
   function startMic(stream){
-    // Set volume to 0.
     window.gainNode = window.audioContext.createGain();
     window.gainNode.connect( window.audioContext.destination );
+
+    // Set volume to 50%.
     window.gainNode.gain.setValueAtTime(0, window.audioContext.currentTime);
+    window.gainNode.gain.setTargetAtTime(0.5, window.audioContext.currentTime, 1000);
 
     window.microphoneStream = window.audioContext.createMediaStreamSource(stream);
     window.microphoneStream.connect(window.gainNode);
@@ -80,13 +82,13 @@ window.getFrequencyAverage = function(freqRange) {
   var total = 0; for(var i = range*slice; i < 1024; i++){ total += window.frequencyData[i] };
   return (total / range) / 255;
 
-  if (freqRange == 'high') {
-    var total = 0; for(var i=680; i<1020;i++){total += window.frequencyData[i]};
-    return (total / 340) / 255;
-  } else if (freqRange == 'med') {
-    var total = 0; for(var i=340; i<680;i++){total += window.frequencyData[i]};
-    return (total / 340) / 255;
-  }
+  // if (freqRange == 'high') {
+  //   var total = 0; for(var i=680; i<1020;i++){total += window.frequencyData[i]};
+  //   return (total / 340) / 255;
+  // } else if (freqRange == 'med') {
+  //   var total = 0; for(var i=340; i<680;i++){total += window.frequencyData[i]};
+  //   return (total / 340) / 255;
+  // }
 }
 
 window.frequencyData = [];
@@ -99,15 +101,15 @@ document.addEventListener("DOMContentLoaded", function(){
   newDiv.style.textAlign = "center";
 
   // NOTE: Only add this if you're comfortable with feedback gain.
-  newDiv.appendChild(document.createTextNode("Volume"));
-  var volumeControl = document.createElement("input");
-  volumeControl.setAttribute("id", "volume")
-  volumeControl.setAttribute("type", "range")
-  volumeControl.setAttribute("min", "0")
-  volumeControl.setAttribute("max", "1")
-  volumeControl.setAttribute("step", "0.1")
-  volumeControl.setAttribute("value", "0.0")
-  newDiv.appendChild(volumeControl)
+  // newDiv.appendChild(document.createTextNode("Volume"));
+  // var volumeControl = document.createElement("input");
+  // volumeControl.setAttribute("id", "volume")
+  // volumeControl.setAttribute("type", "range")
+  // volumeControl.setAttribute("min", "0")
+  // volumeControl.setAttribute("max", "1")
+  // volumeControl.setAttribute("step", "0.1")
+  // volumeControl.setAttribute("value", "0.0")
+  // newDiv.appendChild(volumeControl)
 
   // Start recording from mic
   var recordBtn = document.createElement("button");
@@ -164,13 +166,13 @@ document.addEventListener("DOMContentLoaded", function(){
   // Append stuff!
   document.body.prepend(newDiv)
 
-
+  // NOTE: Uncomment this if you want to control volume
   // --- enable volume control for output speakers
-  document.getElementById('volume').addEventListener('change', function() {
-    var curr_volume = this.value;
-    window.gainNode.gain.value = curr_volume;
-    console.log("curr_volume ", curr_volume);
-  });
+  // document.getElementById('volume').addEventListener('change', function() {
+  //   var curr_volume = this.value;
+  //   window.gainNode.gain.value = curr_volume;
+  //   console.log("curr_volume ", curr_volume);
+  // });
 
   document.querySelector('button').addEventListener('click', function() {
     window.startRecording();

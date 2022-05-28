@@ -218,13 +218,18 @@
         var time = performance.now() * 0.0005;
   			material.uniforms[ "time" ].value = time;
 
+        var lowFreq = window.getFrequencyAverage("low");
+        var medFreq = window.getFrequencyAverage("med");
+        var highFreq = window.getFrequencyAverage("high");
+        console.log("time: ", time, ",low,med,hi", lowFreq, medFreq,highFreq)
+
         var freq;
         if (num == 0) {
-          freq = window.getFrequencyAverage('low')
+          freq = lowFreq
         } else if (num == 1) {
-          freq = window.getFrequencyAverage('med');
+          freq = medFreq
         } else if (num == 2) {
-          freq = window.getFrequencyAverage('high');
+          freq = highFreq
         }
 
         material.uniforms[ "freq" ].value  = freq;

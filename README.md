@@ -10,6 +10,11 @@ https://dman7.github.io/djviz/visualizations/dotcube_sin_scale.html
 https://dman7.github.io/djviz/visualizations/dotcube_torus_scale.html
 
 
+## Explanation
+![djviz](./inverted_torus.png)
+
+
+
 
 
 

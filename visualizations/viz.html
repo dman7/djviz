@@ -133,12 +133,11 @@
         // vScale is used to define the hue.
         // scale is scaleFactor.
         // position * scale basically scales.
-        // += position * scale doesn't change position but scales it.
         vec3 trTime = vec3(translate.x + time,translate.y + time,translate.z + time);
         vScale = sin( trTime.x ) + sin( trTime.y ) + sin( trTime.z );
 
         // Outer object
-        float scale = highFreq * 5.0 + 0.5;
+        float scale = highFreq * 10.0 + 0.5;
 
         // The beat sphere
         float circle = translate.x * translate.x + translate.y * translate.y;
@@ -165,27 +164,24 @@
           scale  = freqSlice3 * 5.0+ 0.1;
         }
 
+        // Define the inverse torus.
+        float torusBigR    = 1.0;
+        float circleRadius = sqrt(circle);
+        float torus        = (torusBigR - circleRadius) * (torusBigR - circleRadius) + translate.z * translate.z;
 
 
-
-        float torusBigR = 1.0;
-        float torusSmallR = 0.7;
-        float torus     = (torusBigR - sqrt(circle)) * (torusBigR - sqrt(circle)) + translate.z * translate.z;
+        float torusSmallR  = 0.7;
         if (torus > torusSmallR && torus < torusBigR) {
           vScale = sin( trTime.x ) + cos( trTime.y ) + tan( trTime.z );
-          scale  = medFreq * 5.0+ 1.0;
+          scale  = medFreq * 10.0+ 1.0;
         }
-
 
         // if (torus > torusBigR) {
         //   vScale = sin( trTime.x ) + cos( trTime.y ) + tan( trTime.z );
         //   scale  = lowFreq * 20.0+ 0.1;
         // }
 
-        //
-
-        //
-
+        // In this case, += position * scale doesn't change position but scales it.
   			mvPosition.xyz += position * scale;
 
         // uv is (x,y) of the vertex in Cartersian space.
