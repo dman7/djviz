@@ -33,10 +33,10 @@ window.initCamera = function(THREE) {
   window.camera = null;
   window.scene = null;
   window.renderer = new THREE.WebGLRenderer();
-  if ( window.renderer.extensions.get( 'ANGLE_instanced_arrays' ) === null ) {
-    document.getElementById( 'notSupported' ).style.display = '';
-    return false;
-  }
+  // if ( window.renderer.extensions.get( 'ANGLE_instanced_arrays' ) === null ) {
+  //   document.getElementById( 'notSupported' ).style.display = '';
+  //   return false;
+  // }
 
   window.container = document.createElement( 'div' );
   document.body.appendChild( window.container );
