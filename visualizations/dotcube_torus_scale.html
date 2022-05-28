@@ -162,10 +162,10 @@
       // https://discoverthreejs.com/book/first-steps/first-scene/#positioning-an-object-in-3d-space
   		function init() {
   			renderer = new THREE.WebGLRenderer();
-  			if ( renderer.extensions.get( 'ANGLE_instanced_arrays' ) === null ) {
-  				document.getElementById( 'notSupported' ).style.display = '';
-  				return false;
-  			}
+  			// if ( renderer.extensions.get( 'ANGLE_instanced_arrays' ) === null ) {
+  			// 	document.getElementById( 'notSupported' ).style.display = '';
+  			// 	return false;
+  			// }
 
   			container = document.createElement( 'div' );
   			document.body.appendChild( container );

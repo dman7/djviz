@@ -1,3 +1,18 @@
+## Demo
+
+Main: https://dman7.github.io/djviz/visualizations/viz.html
+
+Experimental shapes:
+https://dman7.github.io/djviz/visualizations/dotcube_experiment_scale.html
+https://dman7.github.io/djviz/visualizations/dotcube_freq_scale.html
+https://dman7.github.io/djviz/visualizations/dotcube_linear_freq_scale.html
+https://dman7.github.io/djviz/visualizations/dotcube_sin_scale.html
+https://dman7.github.io/djviz/visualizations/dotcube_torus_scale.html
+
+
+
+
+
 ## Instructions
 
 1. Add
